@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <unistd.h>
 
 // char to int
 static inline int ctoi(char input)
@@ -9,9 +10,18 @@ static inline int ctoi(char input)
     return ((int) input) - 48;
 }
 
+// clear screen
+#ifdef _WIN32
+#include <conio.h>
+#else
+#include <stdio.h>
+#define clrscr() printf("\e[1;1H\e[2J")
+#endif
+
 struct Tamagotchi
 {
-    char *text_arts[4];
+    char* text_arts[4];
+    char name [20];
 
     int art_height;
     bool bored;
@@ -29,8 +39,11 @@ enum Command {
 
 void take_input(Tamagotchi* tamagotchi)
 {
-    char input = getchar();
+    char input;
+    scanf("%c", & input);
+
     printf("\n");
+
     if (input == 'h')
     {
         printf("1 - Throw Ball\n2 - Feed\n3 - Kill\n4 - Pet\n5 - Wash\n");
@@ -44,12 +57,18 @@ void take_input(Tamagotchi* tamagotchi)
         switch (cmd)
         {
             case Throw_Ball:
-                printf("Threw Ball!\n");
+                printf("Threw Ball! Dog chasing after it!\n");
+                sleep(2);
+                printf("Dog ran back to you and handed you the ball.\n");
                 break;
             default:
                 printf("Number not corresponding to any command, try again!\n");
                 break;
         }
+    }
+    else
+    {
+        printf("Bad input :|, h for help\n");
     }
 }
 
@@ -91,7 +110,7 @@ void print_tamagotchi(Tamagotchi* tamagotchi)
     printf("\nType command + enter\n- or type h for help\n");
 }
 
-int main ()
+int main()
 {
     Tamagotchi tamagotchi =
     {
@@ -100,12 +119,16 @@ int main ()
             "      (___()'`;",
             "      /,    /` ",
             "      \\\\'--\\\\  "
-        }, 4, 1, 1, 1
+        }, "Dog McDog", 4, 1, 1, 1
     };
 
-    print_tamagotchi(& tamagotchi);
+    printf("Pick a name for your dog: ");
+    scanf("%s", & tamagotchi.name);
+    int a = 0;
 
     while (true) {
+        a++;
+        print_tamagotchi(& tamagotchi);
         take_input(& tamagotchi);
     }
 
