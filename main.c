@@ -12,10 +12,10 @@ static inline int ctoi(char input)
 
 // clear screen
 #ifdef _WIN32
-#include <conio.h>
+#define clear_screen() system("cls")
 #else
 #include <stdio.h>
-#define clrscr() printf("\e[1;1H\e[2J")
+#define clear_screen() system("clear")
 #endif
 
 struct Tamagotchi
@@ -34,19 +34,61 @@ enum Command {
     Feed,
     Kill,
     Pet,
-    Wash
+    Wash,
+    Status
 } typedef Command;
 
+
+// print text art and statuses
+void print_tamagotchi(Tamagotchi* tamagotchi)
+{
+    for (int i = 0; i < tamagotchi->art_height; i++)
+    {
+        printf("%s\n", tamagotchi->text_arts[i]);
+    }
+
+    printf("\n");
+
+    if (tamagotchi->bored)
+    {
+        printf("%s is bored :(\n", tamagotchi->name);
+    }
+    else
+    {
+        printf("%s is having fun!", tamagotchi->name);
+    }
+    if (tamagotchi->hungry)
+    {
+        printf("%s is hungry :(\n", tamagotchi->name);
+    }
+    else
+    {
+        printf("%s is not hungry!", tamagotchi->name);
+    }
+    if (tamagotchi->happy)
+    {
+        printf("%s is happy!\n", tamagotchi->name);
+    }
+    else
+    {
+        printf("%s is sad :(\n", tamagotchi->name);
+    }
+
+    printf("\nType command + enter\n- or type h for help\n");
+}
+
+// recursive take_input functions
+// - exits when you kill the dog
 void take_input(Tamagotchi* tamagotchi)
 {
     char input;
-    scanf("%c", & input);
+    scanf(" %c", & input);
 
     printf("\n");
 
     if (input == 'h')
     {
-        printf("1 - Throw Ball\n2 - Feed\n3 - Kill\n4 - Pet\n5 - Wash\n");
+        printf("1 - Throw Ball\n2 - Feed\n3 - Kill\n4 - Pet\n5 - Wash\n6 - Status\n");
     }
     // if it's a digit, then we know it's a specific command relating to tamagotchi
     else if (isdigit(input))
@@ -61,6 +103,13 @@ void take_input(Tamagotchi* tamagotchi)
                 sleep(2);
                 printf("Dog ran back to you and handed you the ball.\n");
                 break;
+            case Kill:
+                printf("You killed your dog :( The end.\n");
+                return;
+                break;
+            case Status:
+                print_tamagotchi(tamagotchi);
+                break;
             default:
                 printf("Number not corresponding to any command, try again!\n");
                 break;
@@ -70,44 +119,8 @@ void take_input(Tamagotchi* tamagotchi)
     {
         printf("Bad input :|, h for help\n");
     }
-}
 
-// print text art and statuses
-void print_tamagotchi(Tamagotchi* tamagotchi)
-{
-    for (int i = 0; i < tamagotchi->art_height; i++)
-    {
-        printf("%s\n", tamagotchi->text_arts[i]);
-    }
-
-    printf("\n");
-
-    if (tamagotchi->bored)
-    {
-        printf("Your pet is bored :(\n");
-    }
-    else
-    {
-        printf("Your pet is having fun!");
-    }
-    if (tamagotchi->hungry)
-    {
-        printf("Your pet is hungry :(\n");
-    }
-    else
-    {
-        printf("Your pet is not hungry!");
-    }
-    if (tamagotchi->happy)
-    {
-        printf("Your pet is happy!\n");
-    }
-    else
-    {
-        printf("Your pet is sad :(\n");
-    }
-
-    printf("\nType command + enter\n- or type h for help\n");
+    take_input(tamagotchi);
 }
 
 int main()
@@ -122,15 +135,12 @@ int main()
         }, "Dog McDog", 4, 1, 1, 1
     };
 
+    clear_screen();
     printf("Pick a name for your dog: ");
     scanf("%s", & tamagotchi.name);
-    int a = 0;
+    printf("\nTry entering a command:\n");
 
-    while (true) {
-        a++;
-        print_tamagotchi(& tamagotchi);
-        take_input(& tamagotchi);
-    }
+    take_input(& tamagotchi);
 
     return(0);
 }
